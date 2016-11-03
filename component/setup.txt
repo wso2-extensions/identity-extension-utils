@@ -12,12 +12,11 @@ Tested Platform:
 
 Do the following to use this module in the authenticators.
 
-Deploying and Configuring Password Policy artifacts:
 1.  Add the following configuration additionally with appropriate values and to support in tenant, add the configuration
     in registry.
 
     <AuthenticatorConfig>
-     <Parameter name="usecase">association</Parameter>
+         <Parameter name="usecase">association</Parameter>
          <Parameter name="secondaryUserstore">primary</Parameter>
          <Parameter name="enableSecondStep">true</Parameter>
          <Parameter name="authenticationPolicyEnable">true</Parameter>
