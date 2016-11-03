@@ -1,0 +1,29 @@
+Module: WSO2 IS Extension Utils
+Pre-requisites:
+
+- Maven 3.x
+- Java 1.6 or above
+
+Tested Platform: 
+
+- Ubundu 14
+- WSO2 IS 5.1.0 & 5.2.0
+- Java 1.7 & 1.8
+
+Do the following to use this module in the authenticators.
+
+Deploying and Configuring Password Policy artifacts:
+1.  Add the following configuration additionally with appropriate values and to support in tenant, add the configuration
+    in registry.
+
+    <AuthenticatorConfig>
+     <Parameter name="usecase">association</Parameter>
+         <Parameter name="secondaryUserstore">primary</Parameter>
+         <Parameter name="enableSecondStep">true</Parameter>
+         <Parameter name="authenticationPolicyEnable">true</Parameter>
+         <Parameter name="authenticationPolicyAccountLockOnFailure">true</Parameter>
+         <Parameter name="authenticationPolicyAccountLockOnFailureMaxAttempts">2</Parameter>
+         <Parameter name="authenticationPolicyAccountLockTime">2</Parameter>
+    </AuthenticatorConfig>
+
+2.  Export the helper module with the authenticator.
