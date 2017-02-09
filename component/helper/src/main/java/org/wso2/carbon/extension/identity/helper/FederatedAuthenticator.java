@@ -24,6 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.extension.identity.helper.util.IdentityHelperUtil;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
@@ -51,6 +53,14 @@ import java.util.Map;
 public class FederatedAuthenticator {
     private static Log log = LogFactory.getLog(FederatedAuthenticator.class);
 
+    /**
+     * Get parameter values from application-authentication.xml local file.
+     */
+    public static Map<String, String> getAuthenticatorConfig(String authenticatorConfigEntry) {
+        AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance()
+                .getAuthenticatorBean(authenticatorConfigEntry);
+        return authConfig.getParameterMap();
+    }
 
     /**
      * Update the authenticated user context.
@@ -298,6 +308,43 @@ public class FederatedAuthenticator {
                         }
                     }
                     break;
+                }
+            }
+        }
+        if (StringUtils.isEmpty(username)) {
+            StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
+            String previousStepAuthenticator = stepConfig.getAuthenticatedAutenticator().getName();
+            Map<String, String> parametersMap = getAuthenticatorConfig(previousStepAuthenticator);
+            userAttribute = parametersMap.get(IdentityHelperConstants.THIRD_USECASE);
+            if (StringUtils.isNotEmpty(userAttribute)) {
+                for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
+                    String key = String.valueOf(entry.getKey().getLocalClaim().getClaimUri());
+                    String value = entry.getValue();
+                    if (key.equals(userAttribute)) {
+                        String tenantAwareUsername = String.valueOf(value);
+                        String usernameTenantDomain = context.getCurrentAuthenticatedIdPs().values().iterator().
+                                next().getUser().getTenantDomain();
+                        username = tenantAwareUsername + IdentityHelperConstants.TENANT_DOMAIN_COMBINER +
+                                usernameTenantDomain;
+                        List<String> userStores;
+                        userStores = listSecondaryUserStores(context);
+                        if (userStores != null) {
+                            for (Object userDomain : userStores) {
+                                String federatedUsernameWithDomain;
+                                federatedUsernameWithDomain = IdentityUtil.addDomainToName(username,
+                                        String.valueOf(userDomain));
+                                try {
+                                    if (isExistUserInUserStore(federatedUsernameWithDomain)) {
+                                        username = federatedUsernameWithDomain;
+                                        break;
+                                    }
+                                } catch (UserStoreException e) {
+                                    throw new AuthenticationFailedException("Error while getting secondary user stores ", e);
+                                }
+                            }
+                        }
+                        break;
+                    }
                 }
             }
         }
