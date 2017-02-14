@@ -47,4 +47,5 @@ public class IdentityHelperConstants {
     public static final String AUTHENTICATION_POLICY_ACCOUNT_LOCK_ON_FAILURE_MAS_ATTEMPTS
             = "authenticationPolicyAccountLockOnFailureMaxAttempts";
     public static final String AUTHENTICATION_POLICY_ACCOUNT_LOCK_TIME = "authenticationPolicyAccountLockTime";
+    public static final String HYPHEN = "-";
 }

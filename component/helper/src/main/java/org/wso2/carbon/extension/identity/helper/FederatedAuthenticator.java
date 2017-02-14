@@ -315,7 +315,10 @@ public class FederatedAuthenticator {
             StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
             String previousStepAuthenticator = stepConfig.getAuthenticatedAutenticator().getName();
             Map<String, String> parametersMap = getAuthenticatorConfig(previousStepAuthenticator);
-            userAttribute = parametersMap.get(IdentityHelperConstants.THIRD_USECASE);
+            StepConfig currentStep = context.getSequenceConfig().getStepMap().get(context.getCurrentStep());
+            String currentStepAuthenticator = currentStep.getAuthenticatorList().iterator().next().getName();
+            userAttribute = parametersMap.get(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
+                    IdentityHelperConstants.THIRD_USECASE);
             if (StringUtils.isNotEmpty(userAttribute)) {
                 for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
                     String key = String.valueOf(entry.getKey().getLocalClaim().getClaimUri());
