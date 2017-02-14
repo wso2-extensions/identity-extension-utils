@@ -15,18 +15,17 @@
  ~ limitations under the License.
 -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.wso2.carbon.extension.identity.authenticator.utils</groupId>
         <artifactId>identity-extension-utils</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>org.wso2.carbon.extension.identity.helper</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Library For Identity Extension Helper</name>
     <url>http://wso2.org</url>
