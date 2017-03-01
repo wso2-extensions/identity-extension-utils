@@ -276,10 +276,31 @@ public class FederatedAuthenticator {
     public String getUserNameFromUserAttributes(AuthenticationContext context)
             throws AuthenticationFailedException {
         Map<ClaimMapping, String> userAttributes;
+        Map<String, String> parametersMap;
         String username = null;
         String userAttribute;
         userAttributes = context.getCurrentAuthenticatedIdPs().values().iterator().next().getUser().getUserAttributes();
-        userAttribute = IdentityHelperUtil.getUserAttribute(context);
+        StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
+        String previousStepAuthenticator = stepConfig.getAuthenticatedAutenticator().getName();
+        StepConfig currentStep = context.getSequenceConfig().getStepMap().get(context.getCurrentStep());
+        String currentStepAuthenticator = currentStep.getAuthenticatorList().iterator().next().getName();
+        String tenantDomain = context.getTenantDomain();
+        if (!tenantDomain.equals(IdentityHelperConstants.SUPER_TENANT_DOMAIN)) {
+            IdentityHelperUtil.loadApplicationAuthenticationXMLFromRegistry(context, previousStepAuthenticator, tenantDomain);
+            Object getPropertiesFromLocal = context.getProperty(IdentityHelperConstants.GET_PROPERTY_FROM_REGISTRY);
+            if (getPropertiesFromLocal == null) {
+                userAttribute = context.getProperty(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
+                        IdentityHelperConstants.THIRD_USECASE).toString();
+            } else {
+                parametersMap = getAuthenticatorConfig(previousStepAuthenticator);
+                userAttribute = parametersMap.get(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
+                        IdentityHelperConstants.THIRD_USECASE);
+            }
+        } else {
+            parametersMap = getAuthenticatorConfig(previousStepAuthenticator);
+            userAttribute = parametersMap.get(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
+                    IdentityHelperConstants.THIRD_USECASE);
+        }
         if (StringUtils.isNotEmpty(userAttribute)) {
             for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
                 String key = String.valueOf(entry.getKey().getLocalClaim().getClaimUri());
@@ -310,15 +331,8 @@ public class FederatedAuthenticator {
                     break;
                 }
             }
-        }
-        if (StringUtils.isEmpty(username)) {
-            StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
-            String previousStepAuthenticator = stepConfig.getAuthenticatedAutenticator().getName();
-            Map<String, String> parametersMap = getAuthenticatorConfig(previousStepAuthenticator);
-            StepConfig currentStep = context.getSequenceConfig().getStepMap().get(context.getCurrentStep());
-            String currentStepAuthenticator = currentStep.getAuthenticatorList().iterator().next().getName();
-            userAttribute = parametersMap.get(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
-                    IdentityHelperConstants.THIRD_USECASE);
+        } else {
+            userAttribute = IdentityHelperUtil.getUserAttribute(context);
             if (StringUtils.isNotEmpty(userAttribute)) {
                 for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
                     String key = String.valueOf(entry.getKey().getLocalClaim().getClaimUri());
