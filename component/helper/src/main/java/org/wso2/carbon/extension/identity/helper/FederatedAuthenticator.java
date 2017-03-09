@@ -56,10 +56,13 @@ public class FederatedAuthenticator {
     /**
      * Get parameter values from application-authentication.xml local file.
      */
-    public static Map<String, String> getAuthenticatorConfig(String authenticatorConfigEntry) {
+    public Map<String, String> getAuthenticatorConfig(String authenticatorConfigEntry) {
         AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance()
                 .getAuthenticatorBean(authenticatorConfigEntry);
-        return authConfig.getParameterMap();
+        if (authConfig != null) {
+            return authConfig.getParameterMap();
+        }
+        return null;
     }
 
     /**
@@ -269,6 +272,46 @@ public class FederatedAuthenticator {
     }
 
     /**
+     * Get user attribute with the help of specif authenticator config.
+     *
+     * @param context the authenticationContext
+     * @return userAttribute
+     * @throws AuthenticationFailedException
+     */
+    public String getUserAttributeForSpecificConfig(AuthenticationContext context) throws AuthenticationFailedException {
+        Object propertiesFromLocal = null;
+        String userAttribute = null;
+        Map<String, String> parametersMap;
+        if (log.isDebugEnabled()) {
+            log.debug("Read the user attribute from application authentication xml file");
+        }
+        StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
+        String previousStepAuthenticator = stepConfig.getAuthenticatedAutenticator().getName();
+        StepConfig currentStep = context.getSequenceConfig().getStepMap().get(context.getCurrentStep());
+        String currentStepAuthenticator = currentStep.getAuthenticatorList().iterator().next().getName();
+        String tenantDomain = context.getTenantDomain();
+        if (!tenantDomain.equals(IdentityHelperConstants.SUPER_TENANT_DOMAIN)) {
+            IdentityHelperUtil.loadApplicationAuthenticationXMLFromRegistry(context, previousStepAuthenticator,
+                    tenantDomain);
+            propertiesFromLocal = context.getProperty(IdentityHelperConstants.GET_PROPERTY_FROM_REGISTRY);
+        }
+        if (propertiesFromLocal != null || tenantDomain.equals(IdentityHelperConstants.SUPER_TENANT_DOMAIN)) {
+            parametersMap = getAuthenticatorConfig(previousStepAuthenticator);
+            if (parametersMap != null) {
+                userAttribute = parametersMap.get(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
+                        IdentityHelperConstants.THIRD_USECASE);
+            }
+        } else {
+            if ((context.getProperty(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
+                    IdentityHelperConstants.THIRD_USECASE)) != null) {
+                userAttribute = context.getProperty(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
+                        IdentityHelperConstants.THIRD_USECASE).toString();
+            }
+        }
+        return userAttribute;
+    }
+
+    /**
      * Get username from federated  user attribute
      *
      * @param context the authentication context.
@@ -277,78 +320,37 @@ public class FederatedAuthenticator {
             throws AuthenticationFailedException {
         Map<ClaimMapping, String> userAttributes;
         String username = null;
-        String userAttribute;
         userAttributes = context.getCurrentAuthenticatedIdPs().values().iterator().next().getUser().getUserAttributes();
-        userAttribute = IdentityHelperUtil.getUserAttribute(context);
-        if (StringUtils.isNotEmpty(userAttribute)) {
-            for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
-                String key = String.valueOf(entry.getKey().getLocalClaim().getClaimUri());
-                String value = entry.getValue();
-                if (key.equals(userAttribute)) {
-                    String tenantAwareUsername = String.valueOf(value);
-                    String usernameTenantDomain = context.getCurrentAuthenticatedIdPs().values().iterator().
-                            next().getUser().getTenantDomain();
-                    username = tenantAwareUsername + IdentityHelperConstants.TENANT_DOMAIN_COMBINER +
-                            usernameTenantDomain;
-                    List<String> userStores;
-                    userStores = listSecondaryUserStores(context);
-                    if (userStores != null) {
-                        for (Object userDomain : userStores) {
-                            String federatedUsernameWithDomain;
-                            federatedUsernameWithDomain = IdentityUtil.addDomainToName(username,
-                                    String.valueOf(userDomain));
-                            try {
-                                if (isExistUserInUserStore(federatedUsernameWithDomain)) {
-                                    username = federatedUsernameWithDomain;
-                                    break;
-                                }
-                            } catch (UserStoreException e) {
-                                throw new AuthenticationFailedException("Error while getting secondary user stores ", e);
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
+        String userAttribute = getUserAttributeForSpecificConfig(context);
+        if (StringUtils.isEmpty(userAttribute)) {
+            userAttribute = IdentityHelperUtil.getUserAttribute(context);
         }
-        if (StringUtils.isEmpty(username)) {
-            StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
-            String previousStepAuthenticator = stepConfig.getAuthenticatedAutenticator().getName();
-            Map<String, String> parametersMap = getAuthenticatorConfig(previousStepAuthenticator);
-            StepConfig currentStep = context.getSequenceConfig().getStepMap().get(context.getCurrentStep());
-            String currentStepAuthenticator = currentStep.getAuthenticatorList().iterator().next().getName();
-            userAttribute = parametersMap.get(currentStepAuthenticator + IdentityHelperConstants.HYPHEN +
-                    IdentityHelperConstants.THIRD_USECASE);
-            if (StringUtils.isNotEmpty(userAttribute)) {
-                for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
-                    String key = String.valueOf(entry.getKey().getLocalClaim().getClaimUri());
-                    String value = entry.getValue();
-                    if (key.equals(userAttribute)) {
-                        String tenantAwareUsername = String.valueOf(value);
-                        String usernameTenantDomain = context.getCurrentAuthenticatedIdPs().values().iterator().
-                                next().getUser().getTenantDomain();
-                        username = tenantAwareUsername + IdentityHelperConstants.TENANT_DOMAIN_COMBINER +
-                                usernameTenantDomain;
-                        List<String> userStores;
-                        userStores = listSecondaryUserStores(context);
-                        if (userStores != null) {
-                            for (Object userDomain : userStores) {
-                                String federatedUsernameWithDomain;
-                                federatedUsernameWithDomain = IdentityUtil.addDomainToName(username,
-                                        String.valueOf(userDomain));
-                                try {
-                                    if (isExistUserInUserStore(federatedUsernameWithDomain)) {
-                                        username = federatedUsernameWithDomain;
-                                        break;
-                                    }
-                                } catch (UserStoreException e) {
-                                    throw new AuthenticationFailedException("Error while getting secondary user stores ", e);
-                                }
+        for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
+            String key = String.valueOf(entry.getKey().getLocalClaim().getClaimUri());
+            String value = entry.getValue();
+            if (key.equals(userAttribute)) {
+                String tenantAwareUsername = String.valueOf(value);
+                String usernameTenantDomain = context.getCurrentAuthenticatedIdPs().values().iterator().
+                        next().getUser().getTenantDomain();
+                username = tenantAwareUsername + IdentityHelperConstants.TENANT_DOMAIN_COMBINER + usernameTenantDomain;
+                List<String> userStores;
+                userStores = listSecondaryUserStores(context);
+                if (userStores != null) {
+                    for (Object userDomain : userStores) {
+                        String federatedUsernameWithDomain;
+                        federatedUsernameWithDomain = IdentityUtil.addDomainToName(username,
+                                String.valueOf(userDomain));
+                        try {
+                            if (isExistUserInUserStore(federatedUsernameWithDomain)) {
+                                username = federatedUsernameWithDomain;
+                                break;
                             }
+                        } catch (UserStoreException e) {
+                            throw new AuthenticationFailedException("Error while getting secondary user stores ", e);
                         }
-                        break;
                     }
                 }
+                break;
             }
         }
         return username;
