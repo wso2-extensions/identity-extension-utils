@@ -21,7 +21,7 @@ package org.wso2.carbon.extension.identity.helper.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.extension.identity.helper.FederatedAuthenticator;
+import org.wso2.carbon.extension.identity.helper.FederatedAuthenticatorUtil;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 
 import java.util.Hashtable;
@@ -35,7 +35,7 @@ public class IdentityHelperServiceComponent {
 
     protected void activate(ComponentContext ctxt) {
         try {
-            FederatedAuthenticator authenticator = new FederatedAuthenticator();
+            FederatedAuthenticatorUtil authenticator = new FederatedAuthenticatorUtil();
             Hashtable<String, String> props = new Hashtable<String, String>();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
                     authenticator, props);

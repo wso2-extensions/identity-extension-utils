@@ -54,8 +54,7 @@ public class MultiFactorAuthenticationEventListener {
     public void doPreApplyCode(String userName, AuthenticationContext context)
             throws org.wso2.carbon.user.api.UserStoreException, AuthenticationFailedException {
         if (IdentityHelperUtil.isMultiFactorAuthenticationPolicyEnable(context)) {
-            FederatedAuthenticator federatedAuthenticator = new FederatedAuthenticator();
-            boolean isUserExistInCurrentDomain = federatedAuthenticator.isExistUserInUserStore(userName);
+            boolean isUserExistInCurrentDomain = FederatedAuthenticatorUtil.isUserExistInUserStore(userName);
             if (!isUserExistInCurrentDomain) {
                 IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext
                         (UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
@@ -110,8 +109,7 @@ public class MultiFactorAuthenticationEventListener {
     public void doPostApplyCode(String userName, boolean authenticated,
                                 AuthenticationContext context) throws org.wso2.carbon.user.api.UserStoreException,
             AuthenticationFailedException {
-        FederatedAuthenticator federatedAuthenticator = new FederatedAuthenticator();
-        boolean isUserExistInCurrentDomain = federatedAuthenticator.isExistUserInUserStore(userName);
+        boolean isUserExistInCurrentDomain = FederatedAuthenticatorUtil.isUserExistInUserStore(userName);
         org.wso2.carbon.user.core.UserStoreManager userStoreManager = null;
         userStoreManager = (org.wso2.carbon.user.core.UserStoreManager)
                 getUserStoreManager(userName);

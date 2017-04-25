@@ -50,13 +50,13 @@ import java.util.Map;
 /**
  * Federate authenticator support for multi factor authentication.
  */
-public class FederatedAuthenticator {
-    private static Log log = LogFactory.getLog(FederatedAuthenticator.class);
+public class FederatedAuthenticatorUtil {
+    private static Log log = LogFactory.getLog(FederatedAuthenticatorUtil.class);
 
     /**
      * Get parameter values from application-authentication.xml local file.
      */
-    public Map<String, String> getAuthenticatorConfig(String authenticatorConfigEntry) {
+    public static Map<String, String> getAuthenticatorConfig(String authenticatorConfigEntry) {
         AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance()
                 .getAuthenticatorBean(authenticatorConfigEntry);
         if (authConfig != null) {
@@ -71,7 +71,7 @@ public class FederatedAuthenticator {
      * @param context           the authentication context
      * @param authenticatedUser the authenticated user's name
      */
-    public void updateAuthenticatedUserInStepConfig(AuthenticationContext context,
+    public static void updateAuthenticatedUserInStepConfig(AuthenticationContext context,
                                                     AuthenticatedUser authenticatedUser) {
         for (Object setConfigSet : context.getSequenceConfig().getStepMap().entrySet()) {
             Map.Entry thisEntry = (Map.Entry) setConfigSet;
@@ -90,7 +90,7 @@ public class FederatedAuthenticator {
      *
      * @param context the authentication context
      */
-    public AuthenticatedUser getUsername(AuthenticationContext context) {
+    public static AuthenticatedUser getUsername(AuthenticationContext context) {
         AuthenticatedUser authenticatedUser = null;
         for (Object setConfigSet : context.getSequenceConfig().getStepMap().entrySet()) {
             Map.Entry thisEntry = (Map.Entry) setConfigSet;
@@ -109,7 +109,7 @@ public class FederatedAuthenticator {
      * @param federatedUsername federated helper username
      * @return boolean value
      */
-    public boolean isExistUserInUserStore(String federatedUsername) throws AuthenticationFailedException,
+    public static boolean isUserExistInUserStore(String federatedUsername) throws AuthenticationFailedException,
             UserStoreException {
         UserRealm userRealm;
         boolean isExistUser = false;
@@ -140,7 +140,7 @@ public class FederatedAuthenticator {
      * @param context           the authentication context
      * @return local username
      */
-    public String getLocalUsernameAssociatedWithFederatedUser(String federatedUsername,
+    public static String getLocalUsernameAssociatedWithFederatedUser(String federatedUsername,
                                                               AuthenticationContext context)
             throws AuthenticationFailedException {
         String localUsername;
@@ -175,7 +175,7 @@ public class FederatedAuthenticator {
      *
      * @param context the authentication context
      */
-    public List<String> listSecondaryUserStores(AuthenticationContext context) {
+    public static List<String> listSecondaryUserStores(AuthenticationContext context) {
         List<String> userStores = null;
         String secondaryUserStore;
         secondaryUserStore = IdentityHelperUtil.getSecondaryUserStore(context);
@@ -191,7 +191,7 @@ public class FederatedAuthenticator {
      * @param context           the authentication context.
      * @param federatedUsername federated  username
      */
-    public String getUserNameFromLocal(String federatedUsername, AuthenticationContext context)
+    public static String getUserNameFromLocal(String federatedUsername, AuthenticationContext context)
             throws AuthenticationFailedException {
         String username = null;
         List<String> userStores;
@@ -201,12 +201,12 @@ public class FederatedAuthenticator {
                 for (Object userDomain : userStores) {
                     String federatedUsernameWithDomain;
                     federatedUsernameWithDomain = IdentityUtil.addDomainToName(federatedUsername, String.valueOf(userDomain));
-                    if (isExistUserInUserStore(federatedUsernameWithDomain)) {
+                    if (isUserExistInUserStore(federatedUsernameWithDomain)) {
                         username = federatedUsernameWithDomain;
                         break;
                     }
                 }
-            } else if (isExistUserInUserStore(federatedUsername)) {
+            } else if (isUserExistInUserStore(federatedUsername)) {
                 username = federatedUsername;
             }
         } catch (UserStoreException e) {
@@ -221,7 +221,7 @@ public class FederatedAuthenticator {
      * @param context           the authentication context.
      * @param federatedUsername federated  username
      */
-    public String getUserNameFromAssociation(String federatedUsername, AuthenticationContext context)
+    public static String getUserNameFromAssociation(String federatedUsername, AuthenticationContext context)
             throws AuthenticationFailedException {
         String tenantAwareLocalUsername;
         String username;
@@ -238,7 +238,7 @@ public class FederatedAuthenticator {
                 for (Object userDomain : userStores) {
                     String federatedUsernameWithDomain;
                     federatedUsernameWithDomain = IdentityUtil.addDomainToName(username, String.valueOf(userDomain));
-                    if (isExistUserInUserStore(federatedUsernameWithDomain)) {
+                    if (isUserExistInUserStore(federatedUsernameWithDomain)) {
                         username = federatedUsernameWithDomain;
                         break;
                     }
@@ -256,7 +256,7 @@ public class FederatedAuthenticator {
      * @param context the authentication context.
      * @return federated username.
      */
-    public String getLoggedInFederatedUser(AuthenticationContext context) {
+    public static String getLoggedInFederatedUser(AuthenticationContext context) {
         String username = "";
         for (int i = context.getSequenceConfig().getStepMap().size() - 1; i >= 0; i--) {
             if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
@@ -278,7 +278,7 @@ public class FederatedAuthenticator {
      * @return userAttribute
      * @throws AuthenticationFailedException
      */
-    public String getUserAttributeForSpecificConfig(AuthenticationContext context) throws AuthenticationFailedException {
+    public static String getUserAttributeForSpecificConfig(AuthenticationContext context) throws AuthenticationFailedException {
         Object propertiesFromLocal = null;
         String userAttribute = null;
         Map<String, String> parametersMap;
@@ -316,7 +316,7 @@ public class FederatedAuthenticator {
      *
      * @param context the authentication context.
      */
-    public String getUserNameFromUserAttributes(AuthenticationContext context)
+    public static String getUserNameFromUserAttributes(AuthenticationContext context)
             throws AuthenticationFailedException {
         Map<ClaimMapping, String> userAttributes;
         String username = null;
@@ -341,7 +341,7 @@ public class FederatedAuthenticator {
                         federatedUsernameWithDomain = IdentityUtil.addDomainToName(username,
                                 String.valueOf(userDomain));
                         try {
-                            if (isExistUserInUserStore(federatedUsernameWithDomain)) {
+                            if (isUserExistInUserStore(federatedUsernameWithDomain)) {
                                 username = federatedUsernameWithDomain;
                                 break;
                             }
@@ -362,7 +362,7 @@ public class FederatedAuthenticator {
      * @param context           the authentication context.
      * @param federatedUsername federated helper's username
      */
-    public String getUserNameFromSubjectURI(String federatedUsername, AuthenticationContext context)
+    public static String getUserNameFromSubjectURI(String federatedUsername, AuthenticationContext context)
             throws AuthenticationFailedException {
         List<String> userStores;
         String subjectAttribute = context.getCurrentAuthenticatedIdPs().values().iterator().next().
@@ -375,7 +375,7 @@ public class FederatedAuthenticator {
                 for (Object userDomain : userStores) {
                     String federatedUsernameWithDomain;
                     federatedUsernameWithDomain = IdentityUtil.addDomainToName(username, String.valueOf(userDomain));
-                    if (isExistUserInUserStore(federatedUsernameWithDomain)) {
+                    if (isUserExistInUserStore(federatedUsernameWithDomain)) {
                         username = federatedUsernameWithDomain;
                         break;
                     }
@@ -392,7 +392,7 @@ public class FederatedAuthenticator {
      *
      * @param context the authentication context
      */
-    public void getUsernameFromFirstStep(AuthenticationContext context) throws AuthenticationFailedException {
+    public static void setUsernameFromFirstStep(AuthenticationContext context) throws AuthenticationFailedException {
         String username = null;
         AuthenticatedUser authenticatedUser;
         StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
@@ -427,7 +427,7 @@ public class FederatedAuthenticator {
      * @param context the authentication context
      * @return user name
      */
-    public String getLoggedInLocalUser(AuthenticationContext context) {
+    public static String getLoggedInLocalUser(AuthenticationContext context) {
         String username = "";
         for (int i = context.getSequenceConfig().getStepMap().size() - 1; i >= 0; i--) {
             if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
@@ -449,7 +449,7 @@ public class FederatedAuthenticator {
      * @param context           the authentication context
      * @param authenticatedUser the authenticated user's name
      */
-    public void updateLocalAuthenticatedUserInStepConfig(AuthenticationContext context,
+    public static void updateLocalAuthenticatedUserInStepConfig(AuthenticationContext context,
                                                          AuthenticatedUser authenticatedUser) {
         for (int i = 1; i <= context.getSequenceConfig().getStepMap().size(); i++) {
             StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(i);
