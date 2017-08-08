@@ -18,7 +18,7 @@ Do the following to use this module in the authenticators.
     <AuthenticatorConfig>
          <Parameter name="usecase">association</Parameter>
          <Parameter name="secondaryUserstore">primary</Parameter>
-         <Parameter name="enableSecondStep">true</Parameter>
+         <Parameter name="authenticationMandatory">true</Parameter>
          <Parameter name="authenticationPolicyEnable">true</Parameter>
          <Parameter name="authenticationPolicyAccountLockOnFailure">true</Parameter>
          <Parameter name="authenticationPolicyAccountLockOnFailureMaxAttempts">2</Parameter>

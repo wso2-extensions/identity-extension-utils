@@ -32,7 +32,7 @@ public class IdentityHelperConstants {
     public static final String SECOND_USECASE = "association";
     public static final String THIRD_USECASE = "userAttribute";
     public static final String FOUTH_USECASE = "subjectUri";
-    public static final String ENABLE_SECOND_STEP = "enableSecondStep";
+    public static final String ENABLE_SECOND_STEP = "authenticationMandatory";
     public static final String AUTHENTICATION_CONFIG = "AuthenticatorConfig";
     public static final String NAME = "name";
     public static final String ASSOCIATION_QUERY = "SELECT USER_NAME FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? " +
