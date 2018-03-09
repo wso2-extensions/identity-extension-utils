@@ -20,6 +20,8 @@ package org.wso2.carbon.extension.identity.helper.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,18 +39,20 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * AuthenticationFrameworkUtil class.
  */
 public class IdentityHelperUtil {
     private static Log log = LogFactory.getLog(IdentityHelperUtil.class);
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     /**
      * Check the helper enabled by admin.
@@ -279,7 +283,7 @@ public class IdentityHelperUtil {
      */
     public static void loadApplicationAuthenticationXMLFromRegistry(AuthenticationContext context, String authenticatorName,
                                                                     String tenantDomain) throws AuthenticationFailedException {
-        String xml;
+
         int tenantID = IdentityTenantUtil.getTenantId(tenantDomain);
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -292,14 +296,13 @@ public class IdentityHelperUtil {
                     .getProperty(IdentityHelperConstants.AUTHENTICATION).toString() + "/"
                     + IdentityHelperConstants.REGISTRY_PATH);
             Object content = resource.getContent();
-            xml = new String((byte[]) content);
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder;
-            builder = factory.newDocumentBuilder();
-            Document doc;
-            doc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+            String xml = new String((byte[]) content);
+            DocumentBuilderFactory factory = getSecuredDocumentBuilderFactory();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+
             NodeList authConfigList = doc.getElementsByTagName(IdentityHelperConstants.AUTHENTICATION_CONFIG);
+
             for (int authConfigIndex = 0; authConfigIndex < authConfigList.getLength(); authConfigIndex++) {
                 Node authConfigNode = authConfigList.item(authConfigIndex);
                 if (authConfigNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -343,5 +346,36 @@ public class IdentityHelperUtil {
         AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance()
                 .getAuthenticatorBean(authenticatorName);
         return authConfig.getParameterMap();
+    }
+
+    /**
+     * Create DocumentBuilderFactory with the XXE and XEE prevention measurements.
+     *
+     * @return DocumentBuilderFactory instance
+     */
+    public static DocumentBuilderFactory getSecuredDocumentBuilderFactory() {
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setXIncludeAware(false);
+        dbf.setExpandEntityReferences(false);
+        try {
+            dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE, false);
+            dbf.setFeature(Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+            dbf.setFeature(Constants.XERCES_FEATURE_PREFIX + Constants.LOAD_EXTERNAL_DTD_FEATURE, false);
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            log.error("Failed to load XML Processor Feature " + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE + " or " +
+                    Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or " + Constants.LOAD_EXTERNAL_DTD_FEATURE +
+                    " or secure-processing.");
+        }
+
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        dbf.setAttribute(Constants.XERCES_PROPERTY_PREFIX + Constants.SECURITY_MANAGER_PROPERTY, securityManager);
+
+        return dbf;
+
     }
 }

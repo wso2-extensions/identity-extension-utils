@@ -67,8 +67,14 @@
                             org.wso2.carbon.identity.application.authentication.framework.*,
                             javax.servlet,
                             javax.servlet.http,
-                            org.apache.oltu.oauth2.*; version="${oltu.package.import.version.range}",
-                            *;resolution:=optional
+
+                            org.apache.xerces.impl; resolution:=optional,
+                            org.apache.xerces.util; resolution:=optional,
+
+                            javax.xml.parsers; version="${imp.pkg.version.javax.xml.parsers}",
+                            javax.xml.*,
+
+                            org.apache.oltu.oauth2.*; version="${oltu.package.import.version.range}",*;resolution:=optional
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.extension.identity.helper.internal,
