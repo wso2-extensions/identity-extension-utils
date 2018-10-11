@@ -392,12 +392,26 @@ public class FederatedAuthenticatorUtil {
      *
      * @param context the authentication context
      */
+    //TODO - Find stepConfig with the username instead of relying on last one to be populated.
     public static void setUsernameFromFirstStep(AuthenticationContext context) throws AuthenticationFailedException {
         String username = null;
         AuthenticatedUser authenticatedUser;
-        StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
-        if (stepConfig.getAuthenticatedAutenticator().getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
-            username = getLoggedInLocalUser(context);
+
+        // Try to get username from first authenticated Step
+        for (int i = context.getSequenceConfig().getStepMap().size() - 1; i >= 0; i--) {
+            if (null != context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() &&
+                    null != context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator() &&
+                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator().getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
+
+                username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
+                if (log.isDebugEnabled()) {
+                    log.debug("username :" + username);
+                }
+                break;
+            }
+        }
+
+        if ( null != username) {
             authenticatedUser = getUsername(context);
         } else {
             //Get username from federated helper
@@ -419,28 +433,6 @@ public class FederatedAuthenticatorUtil {
         }
         context.setProperty(IdentityHelperConstants.USER_NAME, username);
         context.setProperty(IdentityHelperConstants.AUTHENTICATE_USER, authenticatedUser);
-    }
-
-    /**
-     * Get the user name from fist step.
-     *
-     * @param context the authentication context
-     * @return user name
-     */
-    public static String getLoggedInLocalUser(AuthenticationContext context) {
-        String username = "";
-        for (int i = context.getSequenceConfig().getStepMap().size() - 1; i >= 0; i--) {
-            if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
-                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
-                            .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
-                username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
-                if (log.isDebugEnabled()) {
-                    log.debug("username :" + username);
-                }
-                break;
-            }
-        }
-        return username;
     }
 
     /**
