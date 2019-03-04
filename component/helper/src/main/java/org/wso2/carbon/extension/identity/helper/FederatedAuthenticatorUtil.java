@@ -258,7 +258,7 @@ public class FederatedAuthenticatorUtil {
      */
     public static String getLoggedInFederatedUser(AuthenticationContext context) {
         String username = "";
-        for (int i = context.getSequenceConfig().getStepMap().size() - 1; i >= 0; i--) {
+        for (int i = context.getSequenceConfig().getStepMap().size(); i > 0; i--) {
             if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
                     context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
                             .getApplicationAuthenticator() instanceof FederatedApplicationAuthenticator) {
@@ -429,7 +429,7 @@ public class FederatedAuthenticatorUtil {
      */
     public static String getLoggedInLocalUser(AuthenticationContext context) {
         String username = "";
-        for (int i = context.getSequenceConfig().getStepMap().size() - 1; i >= 0; i--) {
+        for (int i = context.getSequenceConfig().getStepMap().size(); i > 0; i--) {
             if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
                     context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
                             .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
