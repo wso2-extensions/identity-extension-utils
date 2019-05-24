@@ -35,10 +35,6 @@ public class IdentityHelperServiceComponent {
 
     protected void activate(ComponentContext ctxt) {
         try {
-            FederatedAuthenticatorUtil authenticator = new FederatedAuthenticatorUtil();
-            Hashtable<String, String> props = new Hashtable<String, String>();
-            ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                    authenticator, props);
             if (log.isDebugEnabled()) {
                 log.debug("Authentication Common Extension Framework is activated");
             }
