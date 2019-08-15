@@ -28,7 +28,7 @@ import org.osgi.service.component.annotations.Deactivate;
 @Component(name = "identity.application.helper.AuthenticationFramework.component", immediate = true)
 public class IdentityHelperServiceComponent {
 
-    private static Log log = LogFactory.getLog(IdentityHelperServiceComponent.class);
+    private static final Log log = LogFactory.getLog(IdentityHelperServiceComponent.class);
 
     @Activate
     protected void activate(ComponentContext ctxt) {
