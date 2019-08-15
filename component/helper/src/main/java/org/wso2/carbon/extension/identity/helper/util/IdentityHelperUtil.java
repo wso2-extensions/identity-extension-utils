@@ -48,7 +48,8 @@ import java.util.Map;
  * AuthenticationFrameworkUtil class.
  */
 public class IdentityHelperUtil {
-    private static Log log = LogFactory.getLog(IdentityHelperUtil.class);
+
+    private static final Log log = LogFactory.getLog(IdentityHelperUtil.class);
 
     /**
      * Check the helper enabled by admin.

@@ -41,7 +41,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
  */
 public class MultiFactorAuthenticationEventListener {
 
-    private static Log log = LogFactory.getLog(MultiFactorAuthenticationEventListener.class);
+    private static final Log log = LogFactory.getLog(MultiFactorAuthenticationEventListener.class);
     private UserIdentityDataStore module;
 
     public MultiFactorAuthenticationEventListener() {

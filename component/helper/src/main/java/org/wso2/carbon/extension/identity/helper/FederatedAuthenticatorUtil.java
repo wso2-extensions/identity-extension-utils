@@ -51,7 +51,8 @@ import java.util.Map;
  * Federate authenticator support for multi factor authentication.
  */
 public class FederatedAuthenticatorUtil {
-    private static Log log = LogFactory.getLog(FederatedAuthenticatorUtil.class);
+
+    private static final Log log = LogFactory.getLog(FederatedAuthenticatorUtil.class);
 
     /**
      * Get parameter values from application-authentication.xml local file.
