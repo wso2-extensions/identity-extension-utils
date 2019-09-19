@@ -22,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.extension.identity.helper.util.IdentityHelperUtil;
+import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticationFlowHandler;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
@@ -397,8 +399,10 @@ public class FederatedAuthenticatorUtil {
         String username = null;
         AuthenticatedUser authenticatedUser;
         StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
-        if (stepConfig != null && stepConfig.getAuthenticatedAutenticator().getApplicationAuthenticator() instanceof
-                LocalApplicationAuthenticator) {
+        ApplicationAuthenticator applicationAuthenticator = stepConfig.getAuthenticatedAutenticator()
+                .getApplicationAuthenticator();
+        if (stepConfig != null && (applicationAuthenticator instanceof LocalApplicationAuthenticator ||
+                applicationAuthenticator instanceof AuthenticationFlowHandler)) {
             username = getLoggedInLocalUser(context);
             authenticatedUser = getUsername(context);
         } else {
@@ -432,9 +436,11 @@ public class FederatedAuthenticatorUtil {
     public static String getLoggedInLocalUser(AuthenticationContext context) {
         String username = "";
         for (int i = context.getSequenceConfig().getStepMap().size(); i > 0; i--) {
+            ApplicationAuthenticator applicationAuthenticator = context.getSequenceConfig().getStepMap().get(i)
+                    .getAuthenticatedAutenticator().getApplicationAuthenticator();
             if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
-                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
-                            .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
+                    (applicationAuthenticator instanceof LocalApplicationAuthenticator || applicationAuthenticator
+                            instanceof AuthenticationFlowHandler)) {
                 username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
                 if (log.isDebugEnabled()) {
                     log.debug("username :" + username);
