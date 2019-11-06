@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.extension.identity.helper.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -31,18 +32,24 @@ import org.wso2.carbon.identity.application.authentication.framework.config.buil
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Map;
 
 /**
  * AuthenticationFrameworkUtil class.
@@ -344,5 +351,33 @@ public class IdentityHelperUtil {
         AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance()
                 .getAuthenticatorBean(authenticatorName);
         return authConfig.getParameterMap();
+    }
+
+    /**
+     * Append a query param map to the URL (URL may already contain query params)
+     *
+     * @param url         URL string to append the params.
+     * @param queryParams Map of query params to be append.
+     * @return Built URL with query params.
+     * @throws UnsupportedEncodingException Throws when trying to encode the query params.
+     */
+    public static String appendQueryParamsToUrl(String url, Map<String, String> queryParams)
+            throws UnsupportedEncodingException {
+
+        if (StringUtils.isEmpty(url)) {
+            throw new IllegalArgumentException("Passed URL is empty.");
+        }
+        if (queryParams == null) {
+            throw new IllegalArgumentException("Passed query param map is empty.");
+        }
+
+        List<String> encodedQueryParams = new ArrayList<>();
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            String encodedKey = URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name());
+            String encodedValue = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name());
+            encodedQueryParams.add(encodedKey + "=" + encodedValue);
+        }
+        String queryString = StringUtils.join(encodedQueryParams, "&");
+        return FrameworkUtils.appendQueryParamsStringToUrl(url, queryString);
     }
 }
