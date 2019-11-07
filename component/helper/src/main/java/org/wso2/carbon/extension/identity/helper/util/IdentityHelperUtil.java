@@ -32,7 +32,6 @@ import org.wso2.carbon.identity.application.authentication.framework.config.buil
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -379,6 +378,33 @@ public class IdentityHelperUtil {
 
         String queryString = StringUtils.join(encodedQueryParamList, "&");
 
-        return FrameworkUtils.appendQueryParamsStringToUrl(url, queryString);
+        return appendQueryParamsStringToUrl(url, queryString);
+    }
+
+    /**
+     * Append the query param string to the URL.
+     *
+     * @param url              URL string to append the params.
+     * @param queryParamString String containing the query parameters
+     * @return complete URL with the appended query parameters.
+     */
+    public static String appendQueryParamsStringToUrl(String url, String queryParamString) {
+
+        String queryAppendedUrl = url;
+        if (StringUtils.isNotEmpty(queryParamString)) {
+            String appender;
+            if (url.contains("?")) {
+                appender = "&";
+            } else {
+                appender = "?";
+            }
+
+            if (queryParamString.startsWith("?") || queryParamString.startsWith("&")) {
+                queryParamString = queryParamString.substring(1);
+            }
+
+            queryAppendedUrl = url + appender + queryParamString;
+        }
+        return queryAppendedUrl;
     }
 }
