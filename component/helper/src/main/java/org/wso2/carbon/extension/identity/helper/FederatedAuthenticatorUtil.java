@@ -402,7 +402,9 @@ public class FederatedAuthenticatorUtil {
                 LocalApplicationAuthenticator) {
             username = getLoggedInLocalUser(context);
             authenticatedUser = getUsername(context);
-        } else {
+        } else if (stepConfig != null &&
+                stepConfig.getAuthenticatedAutenticator().getApplicationAuthenticator() instanceof
+                        FederatedApplicationAuthenticator) {
             //Get username from federated helper
             String federatedUsername = getLoggedInFederatedUser(context);
             String usecase = IdentityHelperUtil.getUsecase(context);
@@ -419,6 +421,9 @@ public class FederatedAuthenticatorUtil {
                 username = getUserNameFromSubjectURI(federatedUsername, context);
             }
             authenticatedUser = getUsername(context);
+        } else {
+            String errorMsg = "Unable to find a valid authenticated user from the previous step.";
+            throw new AuthenticationFailedException(errorMsg);
         }
         context.setProperty(IdentityHelperConstants.USER_NAME, username);
         context.setProperty(IdentityHelperConstants.AUTHENTICATE_USER, authenticatedUser);
