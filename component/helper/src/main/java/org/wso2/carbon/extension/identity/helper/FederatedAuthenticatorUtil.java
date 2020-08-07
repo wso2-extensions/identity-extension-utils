@@ -435,22 +435,23 @@ public class FederatedAuthenticatorUtil {
      * @param context the authentication context
      * @return user name
      */
-    public static String getLoggedInLocalUser(AuthenticationContext context) {
+    public static String getLoggedInLocalUser(AuthenticationContext context) throws AuthenticationFailedException {
 
         String username = "";
-        for (int i = context.getSequenceConfig().getStepMap().size(); i > 0; i--) {
-            if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
-                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator() != null &&
-                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
-                            .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
-                username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
-                if (log.isDebugEnabled()) {
-                    log.debug("username :" + username);
+        final Map<Integer, StepConfig> stepMap = context.getSequenceConfig().getStepMap();
+        for (StepConfig stepConfig : stepMap.values()) {
+            if (stepConfig.isSubjectAttributeStep()) {
+                username = stepConfig.getAuthenticatedUser().getUserName();
+                if (username == null) {
+                    throw new AuthenticationFailedException(stepConfig.getAuthenticatedAutenticator().getName() +
+                            " authenticator cannot used without a valid authenticated user. Please check " +
+                            "Authentication Step Configuration.");
                 }
-                break;
+                return username;
             }
         }
-        return username;
+        throw new AuthenticationFailedException(
+                "Cannot find subject identifier from step configurations. Incorrect authenticator configuration.");
     }
 
     /**
