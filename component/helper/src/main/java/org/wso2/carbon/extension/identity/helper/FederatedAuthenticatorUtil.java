@@ -442,6 +442,8 @@ public class FederatedAuthenticatorUtil {
             if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
                     context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator() != null &&
                     context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
+                            .getApplicationAuthenticator() != null &&
+                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
                             .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
                 username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
                 if (log.isDebugEnabled()) {
