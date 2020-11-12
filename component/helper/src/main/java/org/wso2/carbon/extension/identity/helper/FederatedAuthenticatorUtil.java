@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.extension.identity.helper.util.IdentityHelperUtil;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.AuthenticationFlowHandler;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
@@ -403,11 +402,11 @@ public class FederatedAuthenticatorUtil {
         StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
         ApplicationAuthenticator applicationAuthenticator = stepConfig.getAuthenticatedAutenticator()
                 .getApplicationAuthenticator();
-        if (stepConfig != null && (applicationAuthenticator instanceof LocalApplicationAuthenticator ||
-                applicationAuthenticator instanceof AuthenticationFlowHandler)) {
+        if (stepConfig != null && (applicationAuthenticator instanceof LocalApplicationAuthenticator)) {
             username = getLoggedInLocalUser(context);
             authenticatedUser = getUsername(context);
-        } else {
+        } else if (stepConfig != null &&
+                applicationAuthenticator instanceof FederatedApplicationAuthenticator) {
             //Get username from federated helper
             String federatedUsername = getLoggedInFederatedUser(context);
             String usecase = IdentityHelperUtil.getUsecase(context);
@@ -424,6 +423,9 @@ public class FederatedAuthenticatorUtil {
                 username = getUserNameFromSubjectURI(federatedUsername, context);
             }
             authenticatedUser = getUsername(context);
+        } else {
+            String errorMsg = "Unable to find a valid authenticated user from the previous step.";
+            throw new AuthenticationFailedException(errorMsg);
         }
         context.setProperty(IdentityHelperConstants.USER_NAME, username);
         context.setProperty(IdentityHelperConstants.AUTHENTICATE_USER, authenticatedUser);
@@ -444,8 +446,7 @@ public class FederatedAuthenticatorUtil {
                 ApplicationAuthenticator applicationAuthenticator = context.getSequenceConfig().getStepMap().get(i)
                         .getAuthenticatedAutenticator().getApplicationAuthenticator();
                 if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
-                        (applicationAuthenticator instanceof LocalApplicationAuthenticator || applicationAuthenticator
-                                instanceof AuthenticationFlowHandler)) {
+                        (applicationAuthenticator instanceof LocalApplicationAuthenticator)) {
                     username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
                     if (log.isDebugEnabled()) {
                         log.debug("username :" + username);
