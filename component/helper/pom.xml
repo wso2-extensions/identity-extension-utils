@@ -21,11 +21,11 @@
     <parent>
         <groupId>org.wso2.carbon.extension.identity.authenticator.utils</groupId>
         <artifactId>identity-extension-utils</artifactId>
-        <version>1.2.3</version>
+        <version>1.2.4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>org.wso2.carbon.extension.identity.helper</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.4-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Library For Identity Extension Helper</name>
     <url>http://wso2.org</url>
