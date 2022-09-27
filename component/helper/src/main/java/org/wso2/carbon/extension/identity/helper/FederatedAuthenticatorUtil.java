@@ -106,7 +106,7 @@ public class FederatedAuthenticatorUtil {
     }
 
     /**
-     * Check weather given federated username is in the local user store or not
+     * Check weather given federated username is in the local user store or not.
      *
      * @param federatedUsername federated helper username
      * @return boolean value
@@ -123,7 +123,8 @@ public class FederatedAuthenticatorUtil {
         } catch (UserStoreException e) {
             throw new AuthenticationFailedException("Error occurred while loading user manager from user realm", e);
         }
-        String tenantAwareFederatedUsername = MultitenantUtils.getTenantAwareUsername(String.valueOf(federatedUsername));
+        String tenantAwareFederatedUsername = MultitenantUtils.
+                getTenantAwareUsername(String.valueOf(federatedUsername));
         if (userRealm != null) {
             //Check the federated username is already exist or not in the user store
             try {
@@ -173,7 +174,7 @@ public class FederatedAuthenticatorUtil {
     }
 
     /**
-     * Get list of secondary user stores
+     * Get list of secondary user stores.
      *
      * @param context the authentication context
      */
@@ -188,7 +189,7 @@ public class FederatedAuthenticatorUtil {
     }
 
     /**
-     * Get username from local
+     * Get username from local.
      *
      * @param context           the authentication context.
      * @param federatedUsername federated  username
@@ -202,7 +203,8 @@ public class FederatedAuthenticatorUtil {
             if (userStores != null) {
                 for (Object userDomain : userStores) {
                     String federatedUsernameWithDomain;
-                    federatedUsernameWithDomain = IdentityUtil.addDomainToName(federatedUsername, String.valueOf(userDomain));
+                    federatedUsernameWithDomain = IdentityUtil.addDomainToName(federatedUsername,
+                            String.valueOf(userDomain));
                     if (isUserExistInUserStore(federatedUsernameWithDomain)) {
                         username = federatedUsernameWithDomain;
                         break;
@@ -218,7 +220,7 @@ public class FederatedAuthenticatorUtil {
     }
 
     /**
-     * Get username from association
+     * Get username from association.
      *
      * @param context           the authentication context.
      * @param federatedUsername federated  username
@@ -227,10 +229,12 @@ public class FederatedAuthenticatorUtil {
             throws AuthenticationFailedException {
         String tenantAwareLocalUsername;
         String username;
-        String tenantAwareFederatedUsername = MultitenantUtils.getTenantAwareUsername(String.valueOf(federatedUsername));
+        String tenantAwareFederatedUsername = MultitenantUtils.
+                getTenantAwareUsername(String.valueOf(federatedUsername));
         try {
             //Get associated local username of federated helper
-            tenantAwareLocalUsername = getLocalUsernameAssociatedWithFederatedUser(tenantAwareFederatedUsername, context);
+            tenantAwareLocalUsername = getLocalUsernameAssociatedWithFederatedUser(tenantAwareFederatedUsername,
+                    context);
             String localUsernameTenantDomain = MultitenantUtils.getTenantDomain(federatedUsername);
             username = tenantAwareLocalUsername + IdentityHelperConstants.TENANT_DOMAIN_COMBINER +
                     localUsernameTenantDomain;
@@ -282,7 +286,8 @@ public class FederatedAuthenticatorUtil {
      * @return userAttribute
      * @throws AuthenticationFailedException
      */
-    public static String getUserAttributeForSpecificConfig(AuthenticationContext context) throws AuthenticationFailedException {
+    public static String getUserAttributeForSpecificConfig(AuthenticationContext context)
+            throws AuthenticationFailedException {
         Object propertiesFromLocal = null;
         String userAttribute = null;
         Map<String, String> parametersMap;
@@ -291,8 +296,7 @@ public class FederatedAuthenticatorUtil {
         }
         StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
         String previousStepAuthenticator = stepConfig.getAuthenticatedAutenticator().getName();
-        StepConfig currentStep = context.getSequenceConfig().getStepMap().get(context.getCurrentStep());
-        String currentStepAuthenticator = currentStep.getAuthenticatorList().iterator().next().getName();
+        String currentStepAuthenticator = context.getParameter(IdentityHelperConstants.AUTHENTICATION).toString();
         String tenantDomain = context.getTenantDomain();
         if (!tenantDomain.equals(IdentityHelperConstants.SUPER_TENANT_DOMAIN)) {
             IdentityHelperUtil.loadApplicationAuthenticationXMLFromRegistry(context, previousStepAuthenticator,
@@ -316,7 +320,7 @@ public class FederatedAuthenticatorUtil {
     }
 
     /**
-     * Get username from federated  user attribute
+     * Get username from federated  user attribute.
      *
      * @param context the authentication context.
      */
@@ -361,7 +365,7 @@ public class FederatedAuthenticatorUtil {
     }
 
     /**
-     * Get username from subjectUri of federated helper
+     * Get username from subjectUri of federated helper.
      *
      * @param context           the authentication context.
      * @param federatedUsername federated helper's username
@@ -392,7 +396,7 @@ public class FederatedAuthenticatorUtil {
     }
 
     /**
-     * Check the first step of helper type and get username from first step
+     * Check the first step of helper type and get username from first step.
      *
      * @param context the authentication context
      */
