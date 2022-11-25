@@ -174,10 +174,10 @@
     <properties>
         <carbon.identity.package.export.project.version>${project.version}
         </carbon.identity.package.export.project.version>
-        <carbon.identity.version>5.14.0</carbon.identity.version>
-        <carbon.kernel.version>4.6.0</carbon.kernel.version>
+        <carbon.identity.version>6.0.0</carbon.identity.version>
+        <carbon.kernel.version>4.7.0</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
-        <carbon.identity.framework.imp.pkg.version.range>[5.14.0, 6.0.0)
+        <carbon.identity.framework.imp.pkg.version.range>[6.0.0, 7.0.0)
         </carbon.identity.framework.imp.pkg.version.range>
 
         <!-- Pax Logging Version -->
