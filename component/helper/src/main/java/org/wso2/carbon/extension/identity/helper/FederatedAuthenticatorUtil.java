@@ -398,6 +398,13 @@ public class FederatedAuthenticatorUtil {
         String username = null;
         AuthenticatedUser authenticatedUser;
         StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
+        Map<Integer, StepConfig> stepConfigMap = context.getSequenceConfig().getStepMap();
+        for (StepConfig stepConfigIter : stepConfigMap.values()) {
+            if (stepConfigIter.isSubjectAttributeStep()) {
+                stepConfig = stepConfigIter;
+                break;
+            }
+        }
         if (stepConfig != null && stepConfig.getAuthenticatedAutenticator().getApplicationAuthenticator() instanceof
                 LocalApplicationAuthenticator) {
             username = getLoggedInLocalUser(context);
