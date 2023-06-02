@@ -397,13 +397,14 @@ public class FederatedAuthenticatorUtil {
     public static void setUsernameFromFirstStep(AuthenticationContext context) throws AuthenticationFailedException {
         String username = null;
         AuthenticatedUser authenticatedUser;
-        StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
+        StepConfig stepConfig = null;
         Map<Integer, StepConfig> stepConfigMap = context.getSequenceConfig().getStepMap();
         for (StepConfig stepConfigIter : stepConfigMap.values()) {
             if (stepConfigIter.isSubjectAttributeStep()) {
                 stepConfig = stepConfigIter;
                 break;
             }
+            stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
         }
         if (stepConfig != null && stepConfig.getAuthenticatedAutenticator().getApplicationAuthenticator() instanceof
                 LocalApplicationAuthenticator) {
