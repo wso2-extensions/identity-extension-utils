@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.extension.identity.helper.util;
 
+import javax.xml.XMLConstants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -300,6 +301,7 @@ public class IdentityHelperUtil {
             Object content = resource.getContent();
             xml = new String((byte[]) content);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             factory.setNamespaceAware(true);
             DocumentBuilder builder;
             builder = factory.newDocumentBuilder();
