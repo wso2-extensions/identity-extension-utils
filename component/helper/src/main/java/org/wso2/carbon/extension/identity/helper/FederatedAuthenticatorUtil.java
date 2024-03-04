@@ -399,8 +399,9 @@ public class FederatedAuthenticatorUtil {
         AuthenticatedUser authenticatedUser;
         StepConfig stepConfig = null;
         Map<Integer, StepConfig> stepConfigMap = context.getSequenceConfig().getStepMap();
-        for (StepConfig stepConfigIter : stepConfigMap.values()) {
-            if (stepConfigIter.isSubjectAttributeStep()) {
+        for (Map.Entry<Integer, StepConfig> stepConfigMapIter : stepConfigMap.entrySet()) {
+            StepConfig stepConfigIter = stepConfigMapIter.getValue();
+            if (stepConfigIter.isSubjectAttributeStep() && stepConfigMapIter.getKey() < context.getCurrentStep()) {
                 stepConfig = stepConfigIter;
                 break;
             }
