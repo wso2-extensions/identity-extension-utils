@@ -71,7 +71,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
->>>>>>> 6f18ca2 (Update to Pax Logging and reformat the pom)
+
     <scm>
         <connection>scm:git:https://github.com/wso2-extensions/identity-extension-utils.git
         </connection>
