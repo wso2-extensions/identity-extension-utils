@@ -21,19 +21,18 @@ package org.wso2.carbon.extension.identity.helper.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.extension.identity.helper.FederatedAuthenticatorUtil;
-import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
-import java.util.Hashtable;
-
-/**
- * @scr.component name="identity.application.helper.AuthenticationFramework.component" immediate="true"
- */
+@Component(name = "identity.application.helper.AuthenticationFramework.component", immediate = true)
 public class IdentityHelperServiceComponent {
 
     private static Log log = LogFactory.getLog(IdentityHelperServiceComponent.class);
 
+    @Activate
     protected void activate(ComponentContext ctxt) {
+
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Authentication Common Extension Framework is activated");
@@ -43,7 +42,9 @@ public class IdentityHelperServiceComponent {
         }
     }
 
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
+
         if (log.isDebugEnabled()) {
             log.debug("Authentication Common Extension Framework is deactivated");
         }
