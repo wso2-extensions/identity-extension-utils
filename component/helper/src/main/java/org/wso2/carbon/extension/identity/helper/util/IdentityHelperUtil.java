@@ -303,6 +303,7 @@ public class IdentityHelperUtil {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             factory.setNamespaceAware(true);
+            factory.setXIncludeAware(false);
             DocumentBuilder builder;
             builder = factory.newDocumentBuilder();
             Document doc;
