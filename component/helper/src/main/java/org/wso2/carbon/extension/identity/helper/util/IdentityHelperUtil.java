@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.extension.identity.helper.util;
 
+import javax.xml.XMLConstants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -302,7 +303,9 @@ public class IdentityHelperUtil {
             Object content = resource.getContent();
             xml = new String((byte[]) content);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             factory.setNamespaceAware(true);
+            factory.setXIncludeAware(false);
             DocumentBuilder builder;
             builder = factory.newDocumentBuilder();
             Document doc;
@@ -354,7 +357,7 @@ public class IdentityHelperUtil {
     }
 
     /**
-     * Append a query param map to the URL (URL may already contain query params)
+     * Append a query param map to the URL (URL may already contain query params).
      *
      * @param url         URL string to append the params.
      * @param queryParams Map of query params to be append.
@@ -371,13 +374,42 @@ public class IdentityHelperUtil {
             throw new IllegalArgumentException("Passed query param map is empty.");
         }
 
-        List<String> encodedQueryParams = new ArrayList<>();
+        List<String> encodedQueryParamList = new ArrayList<>();
         for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-            String encodedKey = URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name());
             String encodedValue = URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name());
-            encodedQueryParams.add(encodedKey + "=" + encodedValue);
+            String encodedKey = URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name());
+            encodedQueryParamList.add(encodedKey + "=" + encodedValue);
         }
-        String queryString = StringUtils.join(encodedQueryParams, "&");
-        return FrameworkUtils.appendQueryParamsStringToUrl(url, queryString);
+
+        String queryString = StringUtils.join(encodedQueryParamList, "&");
+
+        return appendQueryParamsStringToUrl(url, queryString);
+    }
+
+    /**
+     * Append the query param string to the URL.
+     *
+     * @param url              URL string to append the params.
+     * @param queryParamString String containing the query parameters
+     * @return complete URL with the appended query parameters.
+     */
+    public static String appendQueryParamsStringToUrl(String url, String queryParamString) {
+
+        String queryAppendedUrl = url;
+        if (StringUtils.isNotEmpty(queryParamString)) {
+            String appender;
+            if (url.contains("?")) {
+                appender = "&";
+            } else {
+                appender = "?";
+            }
+
+            if (queryParamString.startsWith("?") || queryParamString.startsWith("&")) {
+                queryParamString = queryParamString.substring(1);
+            }
+
+            queryAppendedUrl = url + appender + queryParamString;
+        }
+        return queryAppendedUrl;
     }
 }

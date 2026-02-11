@@ -399,14 +399,23 @@ public class FederatedAuthenticatorUtil {
     public static void setUsernameFromFirstStep(AuthenticationContext context) throws AuthenticationFailedException {
         String username = null;
         AuthenticatedUser authenticatedUser;
-        StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
-        ApplicationAuthenticator applicationAuthenticator = stepConfig.getAuthenticatedAutenticator()
-                .getApplicationAuthenticator();
-        if (stepConfig != null && (applicationAuthenticator instanceof LocalApplicationAuthenticator)) {
+        StepConfig stepConfig = null;
+        Map<Integer, StepConfig> stepConfigMap = context.getSequenceConfig().getStepMap();
+        for (Map.Entry<Integer, StepConfig> stepConfigMapIter : stepConfigMap.entrySet()) {
+            StepConfig stepConfigIter = stepConfigMapIter.getValue();
+            if (stepConfigIter.isSubjectAttributeStep() && stepConfigMapIter.getKey() < context.getCurrentStep()) {
+                stepConfig = stepConfigIter;
+                break;
+            }
+            stepConfig = context.getSequenceConfig().getStepMap().get(context.getCurrentStep() - 1);
+        }
+        if (stepConfig != null && stepConfig.getAuthenticatedAutenticator().getApplicationAuthenticator() instanceof
+                LocalApplicationAuthenticator) {
             username = getLoggedInLocalUser(context);
             authenticatedUser = getUsername(context);
         } else if (stepConfig != null &&
-                applicationAuthenticator instanceof FederatedApplicationAuthenticator) {
+                stepConfig.getAuthenticatedAutenticator().getApplicationAuthenticator() instanceof
+                        FederatedApplicationAuthenticator) {
             //Get username from federated helper
             String federatedUsername = getLoggedInFederatedUser(context);
             String usecase = IdentityHelperUtil.getUsecase(context);
@@ -441,18 +450,15 @@ public class FederatedAuthenticatorUtil {
 
         String username = "";
         for (int i = context.getSequenceConfig().getStepMap().size(); i > 0; i--) {
-            if (context.getSequenceConfig().getStepMap().get(i)
-                    .getAuthenticatedAutenticator() != null) {
-                ApplicationAuthenticator applicationAuthenticator = context.getSequenceConfig().getStepMap().get(i)
-                        .getAuthenticatedAutenticator().getApplicationAuthenticator();
-                if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
-                        (applicationAuthenticator instanceof LocalApplicationAuthenticator)) {
-                    username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
-                    if (log.isDebugEnabled()) {
-                        log.debug("username :" + username);
-                    }
-                    break;
+            if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
+                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator() != null &&
+                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
+                            .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
+                username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
+                if (log.isDebugEnabled()) {
+                    log.debug("username :" + username);
                 }
+                break;
             }
         }
         return username;
