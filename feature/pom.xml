@@ -19,10 +19,10 @@
     <parent>
         <groupId>org.wso2.carbon.extension.identity.authenticator.utils</groupId>
         <artifactId>identity-extension-utils</artifactId>
-        <version>1.0.23-SNAPSHOT</version>
+        <version>1.3.0</version>
     </parent>
     <artifactId>org.wso2.carbon.extension.identity.utils.helper.feature</artifactId>
-    <version>1.0.23-SNAPSHOT</version>
+    <version>1.3.0</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Identity Extension Util Feature</name>
     <url>http://wso2.org</url>
