@@ -340,11 +340,8 @@ public class IdentityHelperUtil {
         } catch (SAXException | ParserConfigurationException | IOException e) {
             throw new AuthenticationFailedException("Cannot get the parameter values from registry ", e);
         } catch (RegistryException e) {
-            if (!Boolean.parseBoolean(IdentityUtil.getProperty(IdentityHelperConstants
-                    .ENABLE_TENANT_AUTHENTICATOR_OVERRIDE_FOR_AUTH_SEQUENCE))) {
-                context.setProperty(IdentityHelperConstants.GET_PROPERTY_FROM_REGISTRY,
-                        IdentityHelperConstants.GET_PROPERTY_FROM_REGISTRY);
-            }
+            context.setProperty(IdentityHelperConstants.GET_PROPERTY_FROM_REGISTRY,
+                    IdentityHelperConstants.GET_PROPERTY_FROM_REGISTRY);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
