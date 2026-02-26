@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -331,6 +332,10 @@ public class IdentityHelperUtil {
                         break;
                     }
                 }
+            }
+            if (Boolean.parseBoolean(IdentityUtil.getProperty(IdentityHelperConstants
+                    .ENABLE_TENANT_AUTHENTICATOR_OVERRIDE_FOR_AUTH_SEQUENCE))) {
+                context.setProperty(IdentityHelperConstants.GET_PROPERTY_FROM_REGISTRY, null);
             }
         } catch (SAXException | ParserConfigurationException | IOException e) {
             throw new AuthenticationFailedException("Cannot get the parameter values from registry ", e);

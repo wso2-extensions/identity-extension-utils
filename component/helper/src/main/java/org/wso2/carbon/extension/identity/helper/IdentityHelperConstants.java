@@ -48,4 +48,6 @@ public class IdentityHelperConstants {
             = "authenticationPolicyAccountLockOnFailureMaxAttempts";
     public static final String AUTHENTICATION_POLICY_ACCOUNT_LOCK_TIME = "authenticationPolicyAccountLockTime";
     public static final String HYPHEN = "-";
+    public static final String ENABLE_TENANT_AUTHENTICATOR_OVERRIDE_FOR_AUTH_SEQUENCE
+            = "EnableTenantAuthenticatorOverrideForAuthSequence";
 }
